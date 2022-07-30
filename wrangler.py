@@ -69,10 +69,13 @@ class Wrangler:
     def textToLower(self,df):
         df["text"] = df["text"].apply(str.lower)
     def applyReduceLetterRepeats(self,df):
-        df["text"] = df["text"].apply(lambda x: self.reduceLetterRepeats(x))
-    def reduceLetterRepeats(self,text):
-        rx = re.compile(r'([^\W\d_])\1{2,}')
-        return re.sub(r'[^\W\d_]+', lambda x: Word(rx.sub(r'\1\1', x.group())).correct() if rx.search(x.group()) else x.group(), text)
+        # rx = re.compile(r'([^\W\d_])\1{2,}')
+        rx = re.compile(r'(\w)\1{2,}')
+        df["text"] = df["text"].apply(lambda x: [self.reduceLetterRepeats(y,rx) for y in x])
+        # df["text"] =  df["text"].str.replace(rx, )
+    def reduceLetterRepeats(self,text,rx):
+        # return re.sub(r'[^\W\d_]+', lambda t: Word(rx.sub(r'\1\1', t.group())).correct() if rx.search(t.group()) else t.group(), text)
+        return re.sub(r'(\w)\1{2,}', lambda t: Word(rx.sub(r'\1\1', t.group())).correct() , text)
 
     def removePunctuation(self,df):
         table = str.maketrans('', '', string.punctuation)
@@ -96,10 +99,12 @@ if __name__ == "__main__":
     suidf = wrang.getSuicidalTweets()
     df = pd.concat([lonelydf, anxiousdf, stresseddf, normaldf, depdf, suidf])
     stop_words = set(stopwords.words("english"))
+    print(stop_words)
     wrang.textToLower(df)
-    print(wrang.reduceLetterRepeats("haaaapy"))
-    wrang.applyReduceLetterRepeats(df)
     wrang.tokenizeText(df)
+    print("about to reduce repeats")
+    wrang.applyReduceLetterRepeats(df)
+    print("removing stop word")
     wrang.removeStopWord(df,stop_words)
     stem = PorterStemmer()
     wrang.stemText(df,stem)
