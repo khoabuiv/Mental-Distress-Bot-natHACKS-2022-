@@ -1,0 +1,4 @@
+nltk==3.7
+numpy==1.23.1
+pandas==1.4.3
+textblob==0.17.1
