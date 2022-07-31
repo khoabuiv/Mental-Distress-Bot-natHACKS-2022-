@@ -56,14 +56,16 @@ class Wrangler:
         return df
     def getDepressedTweets(self):
         df = pd.read_csv(self.SENTIMENT_TWEETS_PATH)
-        dep_dict = {0: "not depressed", 1: "depressed"}
+        dep_dict = {0: "normal", 1: "depressed"}
         df.columns = ["id", "text", "label"]
         df["label"].replace(dep_dict, inplace=True)
         df.drop('id', inplace=True, axis=1)
         return df
     def getSuicidalTweets(self):
         df = pd.read_csv(self.SUICIDE_DETECTION_PATH)
+        sui_dict = {"non-suicide": "normal", "suicide": "suicide"}
         df.columns = ["id", "text", "label"]
+        df["label"].replace(sui_dict, inplace=True)
         df.drop('id', inplace=True, axis=1)
         return df 
     def textToLower(self,df):
@@ -99,12 +101,9 @@ if __name__ == "__main__":
     suidf = wrang.getSuicidalTweets()
     df = pd.concat([lonelydf, anxiousdf, stresseddf, normaldf, depdf, suidf])
     stop_words = set(stopwords.words("english"))
-    print(stop_words)
     wrang.textToLower(df)
     wrang.tokenizeText(df)
-    print("about to reduce repeats")
     wrang.applyReduceLetterRepeats(df)
-    print("removing stop word")
     wrang.removeStopWord(df,stop_words)
     stem = PorterStemmer()
     wrang.stemText(df,stem)
