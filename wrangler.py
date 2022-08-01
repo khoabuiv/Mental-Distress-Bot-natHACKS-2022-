@@ -18,6 +18,10 @@ class Wrangler:
         self.SENTIMENT_TWEETS_PATH = "data/sentiment_tweets3.csv"
         self.STRESSED_TWEETS_PATH = "data/Stressed_Tweets.csv"
         self.SUICIDE_DETECTION_PATH = "data/Suicide_Detection.csv"
+        self.stop_word = set(stopwords.words("english"))
+        self.rx = re.compile(r'(\w)\1{2,}')
+        self.stem = PorterStemmer()
+
     def getLonelyTweets(self):
         df = pd.read_csv(self.LONELY_TWEETS_PATH)
         lonely_col = []
@@ -56,16 +60,14 @@ class Wrangler:
         return df
     def getDepressedTweets(self):
         df = pd.read_csv(self.SENTIMENT_TWEETS_PATH)
-        dep_dict = {0: "normal", 1: "depressed"}
+        dep_dict = {0: "not depressed", 1: "depressed"}
         df.columns = ["id", "text", "label"]
         df["label"].replace(dep_dict, inplace=True)
         df.drop('id', inplace=True, axis=1)
         return df
     def getSuicidalTweets(self):
         df = pd.read_csv(self.SUICIDE_DETECTION_PATH)
-        sui_dict = {"non-suicide": "normal", "suicide": "suicide"}
         df.columns = ["id", "text", "label"]
-        df["label"].replace(sui_dict, inplace=True)
         df.drop('id', inplace=True, axis=1)
         return df 
     def textToLower(self,df):
@@ -88,6 +90,13 @@ class Wrangler:
         df["text"] = df["text"].apply(word_tokenize)
     def stemText(self,df,stemmer):
         df["text"] = df["text"].apply(lambda x: [stemmer.stem(y) for y in x])
+    def preparetext(self,text):
+        text = text.lower()
+        text = re.sub(r'(\w)\1{2,}', lambda t: Word(self.rx.sub(r'\1\1', t.group())).correct() , text)
+        text_arr = word_tokenize(text)
+        temp_arr = [char for char in text_arr if char not in self.stop_word ]
+        stemmed = [self.stem.stem(y) for y in temp_arr]
+        return stemmed
 
         
 
@@ -100,13 +109,11 @@ if __name__ == "__main__":
     depdf = wrang.getDepressedTweets()
     suidf = wrang.getSuicidalTweets()
     df = pd.concat([lonelydf, anxiousdf, stresseddf, normaldf, depdf, suidf])
-    stop_words = set(stopwords.words("english"))
     wrang.textToLower(df)
     wrang.tokenizeText(df)
     wrang.applyReduceLetterRepeats(df)
-    wrang.removeStopWord(df,stop_words)
-    stem = PorterStemmer()
-    wrang.stemText(df,stem)
+    wrang.removeStopWord(df,wrang.stop_word)
+    wrang.stemText(df,wrang.stem)
     df.dropna(inplace=True)
     df.to_csv("data/text_dataset.csv", encoding="utf-8", index=False)
 
