@@ -27,13 +27,6 @@ Your data directory should now look like this:
 
 5. Next, either run `python3 wrangler.py` or run `python wrangler.py` from the root directory. The complete dataset will be created and will be called `text_dataset.csv`, which you can load into a dataframe at any time
 
-# To-Do list:
-
-- Find dataset to work with.
-- Using APIs to find and grab social media content and run analysis.
-- Using these metrics to identify people who need help.
-- Differentiate the people who need help from trolls.
-
 Team members:
 
 - Michael Williams
@@ -41,16 +34,3 @@ Team members:
 - Ebin Tomy
 - Sarah Nguyen
 - Khoa Bui
-
-Software Architecture:
-A. Moderation of Mental Distress - Suicidal Ideation
-
-1. Identify persons who are thinking about suicide.
-2. Provide resources to those thinking about suicide.
-3. Reach out to persons thinking about suicide.
-
-B. Moderation of Hate and Discrimination
-
-1. Identify persons who are conducting hate and discrimination.
-2. Provide resources to those conducting hate and discrimination.
-3. Reach out to those conducting hate and discrimination.
